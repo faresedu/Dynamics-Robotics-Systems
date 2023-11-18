@@ -30,10 +30,10 @@ class myRobot():
     def fkine(self, q):
          for joint, keys in enumerate(self.transforms):
             if keys != 'DH':
-                print(f'fkine {keys}:\n{self.transforms[keys].fkine(q[joint])}')
+                # print(f'fkine {keys}:\n{self.transforms[keys].fkine(q[joint])}')
                 self.fkineD[keys] = self.transforms[keys].fkine(q[joint])
             else: 
-                print(f'fkine {keys}:\n{self.transforms[keys].fkine(q)}')
+                # print(f'fkine {keys}:\n{self.transforms[keys].fkine(q)}')
                 self.fkineD[keys] = self.transforms[keys].fkine(q)
     
     def plot(self, q, transformation, movie):
@@ -44,16 +44,18 @@ class myRobot():
     
     def jacobian(self, b0):
         jL = []; jA = []; lastRotation = np.eye(3)
+        J = np.zeros((6, self.joints))
         t = self.fkineD['DH'].t
         for joint, keys in enumerate(self.transforms):
-            if keys != 'DH':
+            if keys != 'DH' and joint < self.joints:
                 if self.typeJoints[joint] == 'R':
                     if joint == 0: 
                         jA.append(b0)
                         lastPosition = np.array(t[:3] - np.zeros(3))
                         jL.append(np.cross(jA[joint], lastPosition))
+                       
 
-                    elif joint>0 and keys != 'DH': 
+                    elif joint>0: 
                         lastRotation = lastRotation @ self.fkineD[keys].R
                         jA.append((lastRotation @ b0))
                         lastT = self.fkineD[keys].t
@@ -64,15 +66,17 @@ class myRobot():
                 else:
                     if joint == 0: jL.append(b0)
                     
-                    elif joint>0 and keys != 'DH': 
+                    elif joint>0: 
                         lastRotation = lastRotation @ self.fkineD[keys].R
                         jL.append(lastRotation @ b0)
                     
                     jA.append(np.zeros(3))
+                
         
-        
+                J[:3, joint] = jL[joint]
+                J[3:, joint] = jA[joint]
 
-        return np.array(jL), np.array(jA)
+        return J
          
     # def ikine(self, T, unit, verbose=True):
     #     assert unit in ['deg', 'rad'], "Unit must be 'deg' or 'rad'"
