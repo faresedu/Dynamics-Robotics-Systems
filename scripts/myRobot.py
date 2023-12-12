@@ -28,7 +28,15 @@ print(f'fkine 0D1:\n{fkine_01}')
 fkine_12 = l2.fkine(q[1])
 print(f'fkine 1D2:\n{fkine_12}')
 
-qt = rtb.jtraj(np.deg2rad([0,180]), q, 50)
-myRobot.plot(qt.q, backend='pyplot', movie='myrobot.gif')
+print(myRobot.q)
+
+myRobot.ik_LM(fkine03, q)
+
+# qt = rtb.jtraj(np.deg2rad([0, 180]), q, 50)
+# a = 5
+# while True:
+#     myRobot.plot(qt.q, backend='pyplot', movie='myrobot.gif')
+#     if a == 0: break
+#     else: a -= 1
 
 
